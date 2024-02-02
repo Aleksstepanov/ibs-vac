@@ -13,7 +13,7 @@
         </q-card-section>
         <q-card-section>
           <q-select v-model:model-value="state.location"
-                    :options="state.regions"
+                    :options="regions"
                     clearable
                     multiple
                     option-label="name"
@@ -38,9 +38,20 @@
   </div>
 </template>
 <script setup>
-import { reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { reactive } from 'vue'
+
 import schedule from 'src/configs/schedule'
+
+// props
+defineProps({
+  regions: {
+    type: Array,
+    default: () => null
+  }
+})
+
+// emits
+const emit = defineEmits(['click:settings'])
 
 // state
 const state = reactive({
@@ -53,17 +64,16 @@ const state = reactive({
 
 // methods
 const onClickApply = () => {
-  console.log('click')
-  console.log(state.target)
-  state.showSettings = false
+  if (state.target) {
+    state.showSettings = false
+    emit('click:settings', {
+      target: state.target,
+      location: state.location,
+      schedule: state.schedule
+    })
+  }
 }
 
 // lifeHooks
-onMounted(async () => {
-  const res = await axios.get(`${import.meta.env.VITE_HH_API_URL}/areas`)
-  state.regions = res?.data?.map(region => ({
-    id: region?.id || '',
-    name: region?.name || ''
-  }))
-})
+
 </script>
